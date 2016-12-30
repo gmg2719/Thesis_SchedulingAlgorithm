@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/NB_Channel_Config.cpp
+stdio.h
+-
+stdlib.h
+-
+time.h
+-
+list
+-
+iostream
+-
+algorithm
+-
+NB_Default_Channel_Config.h
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/NB_Default_Channel_Config.h
+
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/NB_Default_Channel_Config.h
+
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/NB_IoT_eNB_Scheduler.cpp
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+errno.h
+-
+time.h
+-
+NB_Default_Channel_Config.h
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/NB_Default_Channel_Config.h
+

@@ -149,13 +149,13 @@ void UE_Init(UL_UE_list &);
 //NB UL Scheduler Function incldue resource allocation
 int define_Channel_Structure(UL_Anchor_Channel_Structure &, DL_Anchor_Channel_Structure &, int);
 int Set_NPRACH_Resource(NPRACH &, int, int);
-int do_NPUSCH_Resource_Allocation(UL_UE_list &,UL_Anchor_Channel_Structure &,int,int);
-int do_NPUSCH_Scheduler(int,int,int,NPRACH &,UL_Anchor_Channel_Structure &);
+int do_NPUSCH_Resource_Allocation(UL_UE_list &,UL_Anchor_Channel_Structure &,int,int &);
+int do_NPUSCH_Scheduler(int,int &,int,NPRACH &,UL_Anchor_Channel_Structure &);
 int get_UL_Data_Bytes(int);
 
 int get_remaining_UL_resource(int,int &,UL_Anchor_Channel_Structure &);
 // int get_resource_allocation(int);
-bool check_ULChannel(UL_Anchor_Channel_Structure &,int);
+bool check_ULChannel(UL_Anchor_Channel_Structure &,int,int,int);
 int nprachResourceMapping(int,int,int,NPRACH &,UL_Anchor_Channel_Structure &);
 int get_startFreqPos(UL_Anchor_Channel_Structure &,int &,int,int);
 

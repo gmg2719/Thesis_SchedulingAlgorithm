@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
 	else if(exitReason_do_NPUSCH_Scheduler==0)
 	{
 		LOG("NPUSCH Scheduler/Resource Allocation/Mapping Fully done:\n");
-		for (int i = 0; i < subframeTTI; ++i)
+		for (int i = 0; i < subframeTTI*2; ++i)
 		{
 			for (int j = 0; j < num_UL_Subcarrier; ++j)
 			{
@@ -67,11 +67,12 @@ int main(int argc, char const *argv[])
 	else
 	{
 		LOG("return 1 for Testing!\n");
-		for (int i = 0; i < subframeTTI; ++i)
+		for (int i = 0; i < subframeTTI*2; ++i)
 		{
 			for (int j = 0; j < num_UL_Subcarrier; ++j)
 			{
-				LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
+				if(UL_Channle_Struc.resourceStruc[j][i]<10)	LOG("%d  ",UL_Channle_Struc.resourceStruc[j][i]);
+				else LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
 			}
 			LOG("\n");
 		}

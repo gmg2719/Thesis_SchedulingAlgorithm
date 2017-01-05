@@ -68,10 +68,10 @@ int get_remaining_UL_resource(int startScheTTICE0,int &scheTTIOffset,UL_Anchor_C
 int resourceAllocPattern0[5]={0,24,36,40,44};//freqOffset for resource mapping
 int resourceAllocPattern1[8]={0,24,36,40,44,45,46,47};//freqOffset for resource mapping
 // int resourceAllocPattern2[5]={0,24,36,40,44};//freqOffset for resource mapping
-bool check_ULChannel(UL_Anchor_Channel_Structure &UL_Channle_Struc,int unitSubframe,int startFreqPos,int occupy_Freq)
+bool check_ULChannel(UL_Anchor_Channel_Structure &UL_Channle_Struc,int Subframe,int startFreqPos,int occupy_Freq)
 {
 	for (int i = startFreqPos; i < startFreqPos+occupy_Freq; ++i)
-		if(UL_Channle_Struc.resourceStruc[i][unitSubframe]!=0)	return false;
+		if(UL_Channle_Struc.resourceStruc[i][Subframe]!=0)	return false;
 	return true;
 }
 int get_num_subcarrier_perRU(int get_startFreqPos)
@@ -111,7 +111,7 @@ int get_startFreqPos(UL_Anchor_Channel_Structure &UL_Channle_Struc,int &startTim
 			}
 		}
 		startTime=startTime+offsetTTI;
-		LOG("startTime%d,FreqPos:%d\n",startTime,FreqPos);
+		// LOG("startTime%d,FreqPos:%d\n",startTime,FreqPos);
 	}
 	else if(multiToneSupport==0)
 	{
@@ -130,13 +130,13 @@ int get_startFreqPos(UL_Anchor_Channel_Structure &UL_Channle_Struc,int &startTim
 			}
 		}
 		startTime=startTime+offsetTTI;
-		LOG("startTime%d,FreqPos:%d\n",startTime,FreqPos);
+		// LOG("startTime%d,FreqPos:%d\n",startTime,FreqPos);
 	}
 	return FreqPos;
 }
 bool lock=false;
 // int OffsetStartScheTTICE0[10]={0,0,0,0,0,0,0,0,0,0};
-int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Structure &UL_Channle_Struc,int startScheTTICE0,int subframeTTI)
+int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Structure &UL_Channle_Struc,int startScheTTICE0,int &subframeTTI)
 {
 	int scheTTIRAOffset=0,remaining_UL_RAresource=-1;
 	static int cntScheTTICE0=0;
@@ -184,7 +184,7 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 		}
 		startScheTTICE0=startScheTTICE0+scheTTIRAOffset;//Update startScheTTICE0 avoid RA resource
 		lock=true;
-		LOG("startScheTTICE0:%d,remaining_UL_resource:%d\n",startScheTTICE0,remaining_UL_RAresource);
+		// LOG("startScheTTICE0:%d,remaining_UL_resource:%d\n",startScheTTICE0,remaining_UL_RAresource);
 	}
 
 	// return 1;//for testing remaining_UL_RAresource
@@ -201,7 +201,7 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 			if(startTimeSixTone>startTimeThreeTone)	startScheTTICE0=startTimeThreeTone;
 			else	startScheTTICE0=startTimeSixTone;
 			int startTime=0;
-			LOG("startScheTTICE0:%d\n",startScheTTICE0);
+			// LOG("startScheTTICE0:%d\n",startScheTTICE0);
 			int startFreqPos=get_startFreqPos(UL_Channle_Struc,startScheTTICE0,subframeTTI,UL_Sche_UE.multi_tone);
 			int num_subcarrier_perRU=get_num_subcarrier_perRU(startFreqPos);
 			int occupy_Freq=num_subcarrier_perRU * 4;//(3.75 * 4) ->15 kHz
@@ -216,49 +216,47 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 				// startTimeThreeTone=startScheTTICE0;//record MultiTone used time
 				startTime=startTimeThreeTone;
 			}
-			LOG("startScheTTICE0:%d,startTimeSixTone:%d,startTimeThreeTone:%d\n",startScheTTICE0,startTimeSixTone,startTimeThreeTone);
+			// LOG("startScheTTICE0:%d,startTimeSixTone:%d,startTimeThreeTone:%d\n",startScheTTICE0,startTimeSixTone,startTimeThreeTone);
 
 			UL_Sche_UE.remainging_subframe=numRepetiiton * UL_Sche_UE.UE_num_RU * get_num_Slot(num_subcarrier_perRU) * 0.5;//Rep*Num of RU*ULslot(0.5 ms per slot)//ULslot:8,4
 			// int remainging_subframe;
-			LOG("UE_id:%d,startTime:%d,#subcarrier:%d,remainging_subframe:%d,\n",UL_Sche_UE.UE_id,startTime,num_subcarrier_perRU,UL_Sche_UE.remainging_subframe);
-			LOG("StartMappingTime%d,FreqPos:%d,#subcarrierPerRU:%d\n",startTime,startFreqPos,num_subcarrier_perRU);
-			int time=0;
-			LOG("time:");
+			// LOG("UE_id:%d,startTime:%d,#subcarrier:%d,remainging_subframe:%d,\n",UL_Sche_UE.UE_id,startTime,num_subcarrier_perRU,UL_Sche_UE.remainging_subframe);
+			// LOG("StartMappingTime%d,FreqPos:%d,#subcarrierPerRU:%d\n",startTime,startFreqPos,num_subcarrier_perRU);
 			while(UL_Sche_UE.remainging_subframe!=0)
 			{
 				for (int i = startTime; i < subframeTTI; ++i)
 				{
-					time++;
-					LOG("%d\n",time);
+					// LOG("subframe:%d\n",i);
 					if(check_ULChannel(UL_Channle_Struc,i,startFreqPos,occupy_Freq))
 					{
 						for (int j = startFreqPos; j < startFreqPos+occupy_Freq; ++j)
 						{
 							UL_Channle_Struc.resourceStruc[j][i]=UL_Sche_UE.UE_id;// Do PHY Resource Mapping subframe-base
 						}
-						for (int j = 0; j < 48; ++j)
-						{
-							LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
-						}
-						LOG("\n");
+						// for (int j = 0; j < 48; ++j)
+						// {
+						// 	// LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
+						// }
+						// LOG("\n");
 						--UL_Sche_UE.remainging_subframe;
-						LOG("\nremainging_subframe:%d\n",UL_Sche_UE.remainging_subframe);
+						// LOG("\nremainging_subframe:%d\n",UL_Sche_UE.remainging_subframe);
 					}
 					if(UL_Sche_UE.remainging_subframe==0)
 					{
 						if(num_subcarrier_perRU==6)	startTimeSixTone=i+1;
 						else if(num_subcarrier_perRU==3)	startTimeThreeTone=i+1;
 						break;
-						LOG("startTimeSixTone:%d,startTimeThreeTone:%d\n",startTimeSixTone,startTimeThreeTone);
+						// LOG("startTimeSixTone:%d,startTimeThreeTone:%d\n",startTimeSixTone,startTimeThreeTone);
 					}
 				}
+				if(UL_Sche_UE.remainging_subframe!=0)	return 2;
 			}
 		}
 		else//15 KHz single tone:1, not-implenmentation:3.75 KHz single tone
 		{
 			// int num_subcarrier_perRU=get_num_subcarrier_perRU(startFreqPos);
 			int startFreqPos=get_startFreqPos(UL_Channle_Struc,startScheTTICE0,subframeTTI,UL_Sche_UE.multi_tone);
-			LOG("UpdateScheTTI%d,FreqPos:%d,#subcarrierPerRU:1\n",startScheTTICE0,startFreqPos);
+			// LOG("UpdateScheTTI%d,FreqPos:%d,#subcarrierPerRU:1\n",startScheTTICE0,startFreqPos);
 			int startTime=0;
 			int num_subcarrier_perRU=1;
 			int occupy_Freq=num_subcarrier_perRU * 4;//(3.75 * 4) ->15 kHz
@@ -281,15 +279,14 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 
 			UL_Sche_UE.remainging_subframe=numRepetiiton * UL_Sche_UE.UE_num_RU * get_num_Slot(num_subcarrier_perRU) * 0.5;//Rep*Num of RU*ULslot(0.5 ms per slot)//ULslot:8,4
 			// int remainging_subframe;
-			LOG("UE_id:%d,startTime:%d,#subcarrier:%d,\n",UL_Sche_UE.UE_id,startTime,num_subcarrier_perRU);
-			int time=0;
-			LOG("time:");
+			// LOG("UE_id:%d,startTime:%d,#subcarrier:%d,\n",UL_Sche_UE.UE_id,startTime,num_subcarrier_perRU);
+			// LOG("UE_id:%d,startTime:%d,#subcarrier:%d,remainging_subframe:%d,\n",UL_Sche_UE.UE_id,startTime,num_subcarrier_perRU,UL_Sche_UE.remainging_subframe);
+			// LOG("StartMappingTime%d,FreqPos:%d,#subcarrierPerRU:%d\n",startTime,startFreqPos,num_subcarrier_perRU);
 			while(UL_Sche_UE.remainging_subframe!=0)
 			{
 				for (int i = startTime; i < subframeTTI; ++i)
 				{
-					time++;
-					LOG("%d\n",time);
+					// LOG("subframe:%d\n",i);
 					if(check_ULChannel(UL_Channle_Struc,i,startFreqPos,occupy_Freq))
 					{
 						for (int j = startFreqPos; j < startFreqPos+occupy_Freq; ++j)
@@ -315,6 +312,7 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 						break;
 					}
 				}
+				if(UL_Sche_UE.remainging_subframe!=0)	return 2;
 			}
 		}
 	}
@@ -440,6 +438,7 @@ int get_TBS_UL(int mcs,int multi_tone,int num_RU)
 }
 int nprachResourceMapping(int offsetPos,int subframeTTI,int number_of_target_SNR,NPRACH &NPRACH_Struc,UL_Anchor_Channel_Structure &UL_Channle_Struc)
 {
+	subframeTTI*=2;
 	for(int subframe=offsetPos;subframe<subframeTTI;++subframe)
 	{
 		for (int i = 0; i < number_of_target_SNR; ++i)
@@ -495,7 +494,7 @@ int nprachResourceMapping(int offsetPos,int subframeTTI,int number_of_target_SNR
 		}
 	}
 }
-int do_NPUSCH_Scheduler(int offsetPos,int subframeTTI,int number_of_target_SNR,NPRACH &NPRACH_Struc,UL_Anchor_Channel_Structure &UL_Channle_Struc)
+int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,NPRACH &NPRACH_Struc,UL_Anchor_Channel_Structure &UL_Channle_Struc)
 {
 	std::list<UL_UE_list> UL_Sche_UE_List;
 	std::list<UL_UE_list>::iterator it1,it2;//it1:(UL_UE_list *)
@@ -549,6 +548,7 @@ int do_NPUSCH_Scheduler(int offsetPos,int subframeTTI,int number_of_target_SNR,N
 			++cntRnd;
 			LOG("%d round startScheTTICE0:%d\n",cntRnd,startScheTTICE0);
 			// static int UE_id=10;//10~
+			// int successProb=0.36;
 			int UE_id=10;
 			for (int i = 0; i < num_UEs_CE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
 			for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
@@ -647,9 +647,9 @@ int do_NPUSCH_Scheduler(int offsetPos,int subframeTTI,int number_of_target_SNR,N
 
 				if(i->remainging_subframe==0)//check if UE has resource mapping done
 				{
-					std::cout << "Erase UE:" << i->UE_id;
+					// std::cout << "Erase UE:" << i->UE_id;
 	    			it1 = UL_Sche_UE_List.erase (it1);
-	    			system("pause");
+	    			// system("pause");
 				}
 				else
 				{
@@ -658,6 +658,7 @@ int do_NPUSCH_Scheduler(int offsetPos,int subframeTTI,int number_of_target_SNR,N
 				}
 			}
 			LOG("1st round CE0 UEs ResourceMapping has done\n");
+			return 1;
 			// for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
 			// {
 			// 	UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
@@ -692,6 +693,8 @@ int do_NPUSCH_Scheduler(int offsetPos,int subframeTTI,int number_of_target_SNR,N
 
 int define_Channel_Structure(UL_Anchor_Channel_Structure &UL_Channle_Struc, DL_Anchor_Channel_Structure &DL_Channle_Struc, int subframeTTI)
 {
+	subframeTTI*=2;//Add More UL Channel to finish left UL scheduling
+	LOG("%d",subframeTTI);
 	// UL_Channle_Struc->resourceStruc=NULL;
 	UL_Channle_Struc.resourceStruc = new int*[num_UL_Subcarrier];
 	DL_Channle_Struc.resourceStruc = new int*[num_DL_Subcarrier];
@@ -738,7 +741,7 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			NPRACH_Struc.rep[i]=1; //8 ms
 			NPRACH_Struc.period[i]=80;
 			NPRACH_Struc.start_time[i]=8;//offset from start of NPRACH period
-			NPRACH_Struc.num_Subcarrier[i]=12;
+			NPRACH_Struc.num_Subcarrier[i]=24;
 			NPRACH_Struc.subcarrier_Offset[i]=0;
 			NPRACH_Struc.npdcch_NumRepetitions_RA[i]=1;
 		}
@@ -747,9 +750,9 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			NPRACH_Struc.CE_Level[i]=1;
 			NPRACH_Struc.rep[i]=2; //16 ms
 			NPRACH_Struc.period[i]=80;
-			NPRACH_Struc.start_time[i]=8;
-			NPRACH_Struc.num_Subcarrier[i]=12;
-			NPRACH_Struc.subcarrier_Offset[i]=12;
+			NPRACH_Struc.start_time[i]=16;
+			NPRACH_Struc.num_Subcarrier[i]=24;
+			NPRACH_Struc.subcarrier_Offset[i]=0;
 			NPRACH_Struc.npdcch_NumRepetitions_RA[i]=2;
 		}
 		else if(NPRACH_Struc.target_SNR[i]==-5.75)//MCL:164 DB

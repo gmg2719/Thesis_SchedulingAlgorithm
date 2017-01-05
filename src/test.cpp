@@ -28,18 +28,30 @@ bool compareMyType (const UL_UE_list &a, const UL_UE_list &b)
 	// if(a2->round!=b2->round)	return b2->round - a2->round;
 	// else	return b2->DV - a2->DV;
 }
+int do_NPUSCH_Resource_Allocation(int remaining_UL_resource)
+{
+	static int x=0;
+	static int remainging_subframe=remaining_UL_resource;
+	// int x=1;
+	// remainging_subframe=remainging_subframe+x;
+	std::cout << "remainging_subframe:"<<remainging_subframe<<std::endl;
+	++x;
+}
 
 int main()
 {
+	int remaining_UL_resource=10;
 	std::list<UL_UE_list> o;
 	int index[10] = { 3, 1, 7, 4, 2, 1, 9, 7, 2, 1};
 	int cnt = 0;
 
 	for (int i = 0; i < 10; ++i)
 	{
+		do_NPUSCH_Resource_Allocation(remaining_UL_resource);
 		UL_UE_list a;
 		a.DV = index[i];
 		o.push_back(a);
+		++remaining_UL_resource;
 	}
 
 	o.sort(compareMyType);

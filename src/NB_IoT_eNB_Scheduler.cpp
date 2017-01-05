@@ -31,40 +31,51 @@ int main(int argc, char const *argv[])
 	// UE_Init(&UL_Sche_UE_List,&DL_Sche_UE_List);
 	// LOG("Initial UEs done!\n");
 	int subframeTTI = atoi(argv[1]);
-	if(define_Channel_Structure(&UL_Channle_Struc, &DL_Channle_Struc, subframeTTI)==0)
+	if(define_Channel_Structure(UL_Channle_Struc, DL_Channle_Struc, subframeTTI)==0)
 	{
 		LOG("Set DL/UL Channel Structure Done\n");
 		system("pause");
 	}
 	int number_of_target_SNR = atoi(argv[2]);
 	// LOG("%d",number_of_target_SNR);
-	if(Set_NPRACH_Resource(&NPRACH_Struc, subframeTTI, number_of_target_SNR)==-1)
+	if(Set_NPRACH_Resource(NPRACH_Struc, subframeTTI, number_of_target_SNR)==-1)
 	{
 		LOG("No NPRACH Configuration: BS Failed!\n");
 		return 0;
 	}
-	LOG("Set NPRACH Configuration done!\n");
+	LOG("Setting NPRACH Configuration!\n");
 	// return 0;
 	// int num_UEs=10;
 	int offsetPos=0;//Need Time Offset from SIB2 to start pos of NPRACH
-	if(do_NPUSCH_Scheduler(offsetPos,subframeTTI,number_of_target_SNR,&NPRACH_Struc,&UL_Channle_Struc)==-1)
-	{
+	int exitReason_do_NPUSCH_Scheduler=do_NPUSCH_Scheduler(offsetPos,subframeTTI,number_of_target_SNR,NPRACH_Struc,UL_Channle_Struc);
+	if(exitReason_do_NPUSCH_Scheduler==-1)
 		LOG("BS NPUSCH_Scheduler/Resource_Allocation Failed!\n");
-		return 0;
-	}
-	for (int i = 0; i < subframeTTI; ++i)
+	else if(exitReason_do_NPUSCH_Scheduler==2)
+		LOG("NPUSCH Scheduler/Resource Allocation/Mapping Not Fully done!\n");
+	else if(exitReason_do_NPUSCH_Scheduler==0)
 	{
-		for (int j = 0; j < num_UL_Subcarrier; ++j)
+		LOG("NPUSCH Scheduler/Resource Allocation/Mapping Fully done:\n");
+		for (int i = 0; i < subframeTTI; ++i)
 		{
-			LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
+			for (int j = 0; j < num_UL_Subcarrier; ++j)
+			{
+				LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
+			}
+			LOG("\n");
 		}
-		LOG("\n");
 	}
-	LOG("NPUSCH Scheduler/Resource Allocation done!\n");
-
-
-
-
+	else
+	{
+		LOG("return 1 for Testing!\n");
+		for (int i = 0; i < subframeTTI; ++i)
+		{
+			for (int j = 0; j < num_UL_Subcarrier; ++j)
+			{
+				LOG("%d ",UL_Channle_Struc.resourceStruc[j][i]);
+			}
+			LOG("\n");
+		}
+	}
 	delete [] UL_Channle_Struc.resourceStruc;
 	delete [] DL_Channle_Struc.resourceStruc;
 	system("pause");

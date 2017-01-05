@@ -63,9 +63,11 @@ public:
 	int remaining_Buffer_Sizes;
 	//NPUSCH RU Table
 	double freq_Space;
-	int num_subcarrier_one_RU;
+	int num_subcarrier_perRU;
 	int num_UL_Slot;
 	int UE_num_RU;
+	int remainging_subframe;
+	bool resourceAlloc;
 };
 
 typedef struct {
@@ -145,12 +147,19 @@ typedef struct {
 // bool compareMyType (const UL_UE_list, const UL_UE_list);
 void UE_Init(UL_UE_list &);
 //NB UL Scheduler Function incldue resource allocation
-int define_Channel_Structure(UL_Anchor_Channel_Structure *, DL_Anchor_Channel_Structure *, int);
-int Set_NPRACH_Resource(NPRACH *, int, int);
-int do_NPUSCH_Resource_Allocation(UL_UE_list **);
-int do_NPUSCH_Scheduler(int,int,int,NPRACH *,UL_Anchor_Channel_Structure *);
+int define_Channel_Structure(UL_Anchor_Channel_Structure &, DL_Anchor_Channel_Structure &, int);
+int Set_NPRACH_Resource(NPRACH &, int, int);
+int do_NPUSCH_Resource_Allocation(UL_UE_list &,UL_Anchor_Channel_Structure &,int,int);
+int do_NPUSCH_Scheduler(int,int,int,NPRACH &,UL_Anchor_Channel_Structure &);
 int get_UL_Data_Bytes(int);
-int get_num_subcarrier(void);
+
+int get_remaining_UL_resource(int,int &,UL_Anchor_Channel_Structure &);
+// int get_resource_allocation(int);
+bool check_ULChannel(UL_Anchor_Channel_Structure &,int);
+int nprachResourceMapping(int,int,int,NPRACH &,UL_Anchor_Channel_Structure &);
+int get_startFreqPos(UL_Anchor_Channel_Structure &,int &,int,int);
+
+int get_num_subcarrier_perRU(int);
 int get_num_Slot(int);
 int get_TBS_UL(int,int);
 int get_I_TBS(int);

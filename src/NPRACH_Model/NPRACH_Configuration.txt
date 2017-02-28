@@ -1,0 +1,4 @@
+CE Level/nprach-Periodicity/nprach-StartTime/nprach-SubcarrierOffset/nprach-NumSubcarriers/Repetition/nprach-SubcarrierMSG3-RangeStart
+CE 2	ms40	ms8	n24	n24	n4	(2/3)twoThrid
+CE 1	ms40	ms8	n12	n12	n2	(2/3)twoThrid
+CE 0	ms40	ms8	n0	n12	n1	(2/3)twoThrid	

@@ -58,11 +58,14 @@ public:
 	int UL_Buffer_Sizes;
 	int PHR;	//BS know UE's Power budget.
 	int multi_tone;// 0: not support; 1:support
+	int multi_tone_Msg3;// 0: not support; 1:support
 	int mcs;//mcs Index
 	int round;
 	int remaining_Buffer_Sizes;
 	//NPUSCH RU Table
-	double freq_Space;
+	int startScheMsg3;
+	int startScheULdata;
+	double freq_Space;//Not used
 	int num_subcarrier_perRU;
 	int num_UL_Slot;
 	int UE_num_RU;
@@ -106,7 +109,7 @@ typedef struct {
 
 
 // // NPRACH* RSRP_Threshold = new NPRACH[3];
-// // delete[] RSRP_Threshold; // 不用時釋放
+// // delete[] RSRP_Threshold; //
 typedef struct {
 	double target_SNR[3];
 	int CE_Level[3];

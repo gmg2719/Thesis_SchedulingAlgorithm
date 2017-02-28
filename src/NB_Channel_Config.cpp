@@ -18,12 +18,15 @@ void UE_Init(UL_UE_list &UL_Sche_UE)//Call by reference is the same as Call by p
 	UL_Sche_UE.DV=-1;
 	UL_Sche_UE.PHR=-1;
 	UL_Sche_UE.multi_tone=-1;
+	UL_Sche_UE.multi_tone_Msg3=-1;
 	UL_Sche_UE.num_subcarrier_perRU=-1;
 	UL_Sche_UE.num_UL_Slot=-1;
 	UL_Sche_UE.freq_Space=0;
 	UL_Sche_UE.mcs=-1;
 	UL_Sche_UE.remaining_Buffer_Sizes=0;
 	UL_Sche_UE.round=0;
+	UL_Sche_UE.startScheMsg3=-1;
+	UL_Sche_UE.startScheULdata=-1;
 	//DL
 	// DL_Sche_UE.UE_id=-1;
 	// DL_Sche_UE.Priority=-1;
@@ -493,6 +496,7 @@ int nprachResourceMapping(int offsetPos,int subframeTTI,int number_of_target_SNR
 			}
 		}
 	}
+	return 0;
 }
 int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,NPRACH &NPRACH_Struc,UL_Anchor_Channel_Structure &UL_Channle_Struc)
 {
@@ -501,7 +505,7 @@ int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,
 	UL_UE_list UL_Sche_UE;
 	int startScheTTICE0,startScheTTICE1,startScheTTICE2;
 	// int RBStartPos=NPRACH_Struc.first_end_time;// not used for now
-	int num_UEs_CE0=0,num_UEs_CE1=0,num_UEs_CE2=0;
+	int num_UEs_CE0=0,num_UEs_CE1=0,num_UEs_CE2=0,UE_id=10;
 	nprachResourceMapping(offsetPos,subframeTTI,number_of_target_SNR,NPRACH_Struc,UL_Channle_Struc);
 	// for (int i = 0; i < subframeTTI; ++i)
 	// {
@@ -522,54 +526,119 @@ int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,
 				int occupy_Freq=NPRACH_Struc.num_Subcarrier[i];
 				if(i==0)
 				{
-					// num_UEs_CE0=10;//rnad()? Preamble success
-					startScheTTICE0=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+NPRACH_Struc.rep[i]+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_RAR_Msg3+12+rand()%21+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
+					int successPreambleCE0=3;//rand()? Preamble success
+					for (int i = 0; i < successPreambleCE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
+					int Pos=UL_Sche_UE_List.size()-1;
+					for (it1=UL_Sche_UE_List.begin()+Pos-successPreambleCE0; it1!=UL_Sche_UE_List.end(); ++it1)
+					{
+						UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
+						UE_Init(*i);
+						i->UE_id=UE_id;
+						i->UE_num_RU=0;
+						i->remainging_subframe=0;
+						++UE_id;
+						// i->freq_Space=15;//15 kHz
+						i->CE_Level=0; //decided by UE's RSRP in RA procedure
+						// i->DV=1+rand()%8;	//decided by UE's UL buffer
+						i->multi_tone_Msg3=rand() % 3; //decided by Msg3's content
+						// i->UL_Buffer_Sizes=get_UL_Data_Bytes(i->DV);
+						//http://www.sharetechnote.com/html/Handbook_LTE_CodeRate.html#CodeRate_vs_MCS
+						//MCS:2-10 <->Channnel quality/Coding rate
+						i->mcs=2+rand()%9;//Qm=2,MCS:2-10 36213 Table 16.5.1.2-1
+						int repDCIRAR=NPRACH_Struc.rep[i]* (rand()%successPreambleCE0);
+						int I_RAR=NPRACH_Struc.rep[i]=* (rand()%successPreambleCE0);
+						i->startScheMsg3=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+repDCIRAR+I_RAR;
+						// i->startScheULdata=-1;
+						// i->resourceAlloc=false;
+						// std::cout << ' ' << i->UE_id<<','<<i->UL_Buffer_Sizes<<std::endl;
+					}
+
+					startScheTTICE0=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+repDCIRAR+I_RAR+NPRACH_Struc.I_RAR_Msg3+12+rand()%21+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
 					LOG("startScheTTI CE0: %d\n",startScheTTICE0);
+					Msg3deltaMappingTime=time_SuccessPreamble+4ms+DCI_Rep(RAR)+5ms+ ko_RAR+RAR_Rep+ko_Msg3
+
 				}
 				else if(i==1)
 				{
+					int successPreambleCE1=3;//rnad()? Preamble success
 					num_UEs_CE1=10;//rnad()?
 					startScheTTICE1=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+NPRACH_Struc.rep[i]+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_RAR_Msg3+24+rand()%41+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
 					LOG("startScheTTI CE1: %d\n",startScheTTICE1);
 				}
 				else if(i==2)
 				{
+					int successPreambleCE3=3;//rnad()? Preamble success
 					num_UEs_CE2=10;//rnad()?
 					startScheTTICE2=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+NPRACH_Struc.rep[i]+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_RAR_Msg3+36+rand()%61+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
 					LOG("startScheTTI CE2: %d\n",startScheTTICE2);
 				}
 			}
 		}//end... number_of_target_SNR
+		for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
+		{
+			UL_UE_list *i = &*it1;
+			if(subframe==i->startScheMsg3)
+			{
+				int Msg3bits=91;
+				int RU_unit=1;
+				i->DV=1+rand()%8;	//decided by UE's UL buffer
+				i->UL_Buffer_Sizes=get_UL_Data_Bytes(Msg3bits);
+				i->multi_tone=rand() % 3; //decided by Msg3's content
+				int num_RU_Msg3=RU_unit;
+				int TBS=get_TBS_UL(i->mcs,i->multi_tone,num_RU);
+				// LOG("InitialTBS:%d\n",TBS);
+				if(TBS==-1) continue;
+				while(TBS<i->UL_Buffer_Sizes)
+				{
+					num_RU=num_RU+RU_unit;
+					if(num_RU>10)
+					{
+						TBS=get_TBS_UL(i->mcs,i->multi_tone,10);
+						num_RU=10;
+						i->remaining_Buffer_Sizes=i->UL_Buffer_Sizes-TBS;
+						i->round++;
+						break;
+					}
+					TBS=get_TBS_UL(i->mcs,i->multi_tone,num_RU);
+					// LOG("TBS:%d\n",TBS);
+					// system("pause");
+				}
+				i->UE_num_RU=num_RU;
+				while (!i->empty())
+				{
 
+				}
+			}
+		}
 		if(subframe==startScheTTICE0)//sche for CE0 UEs
 		{
-			num_UEs_CE0=10;
+			// num_UEs_CE0=10;
 			static int cntRnd=0;
 			++cntRnd;
 			LOG("%d round startScheTTICE0:%d\n",cntRnd,startScheTTICE0);
 			// static int UE_id=10;//10~
 			// int successProb=0.36;
-			int UE_id=10;
-			for (int i = 0; i < num_UEs_CE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
-			for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
-			{
-				UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
-				UE_Init(*i);
-				i->UE_id=UE_id;
-				i->UE_num_RU=0;
-				i->remainging_subframe=0;
-				++UE_id;
-				// i->freq_Space=15;//15 kHz
-				i->CE_Level=0; //decided by UE's RSRP in RA procedure
-				i->DV=1+rand()%8;	//decided by UE's UL buffer
-				i->multi_tone=rand() % 3; //decided by Msg3's content
-				i->UL_Buffer_Sizes=get_UL_Data_Bytes(i->DV);
-				//http://www.sharetechnote.com/html/Handbook_LTE_CodeRate.html#CodeRate_vs_MCS
-				//MCS:2-10 <->Channnel quality/Coding rate
-				i->mcs=2+rand()%9;//Qm=2,MCS:2-10 36213 Table 16.5.1.2-1
-				i->resourceAlloc=false;
-				// std::cout << ' ' << i->UE_id<<','<<i->UL_Buffer_Sizes<<std::endl;
-			}
+			// int UE_id=10;
+			// for (int i = 0; i < num_UEs_CE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
+			// for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
+			// {
+			// 	UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
+			// 	UE_Init(*i);
+			// 	i->UE_id=UE_id;
+			// 	i->UE_num_RU=0;
+			// 	i->remainging_subframe=0;
+			// 	++UE_id;
+			// 	// i->freq_Space=15;//15 kHz
+			// 	i->CE_Level=0; //decided by UE's RSRP in RA procedure
+			// 	i->DV=1+rand()%8;	//decided by UE's UL buffer
+			// 	i->multi_tone=rand() % 3; //decided by Msg3's content
+			// 	i->UL_Buffer_Sizes=get_UL_Data_Bytes(i->DV);
+			// 	//http://www.sharetechnote.com/html/Handbook_LTE_CodeRate.html#CodeRate_vs_MCS
+			// 	//MCS:2-10 <->Channnel quality/Coding rate
+			// 	i->mcs=2+rand()%9;//Qm=2,MCS:2-10 36213 Table 16.5.1.2-1
+			// 	i->resourceAlloc=false;
+			// 	// std::cout << ' ' << i->UE_id<<','<<i->UL_Buffer_Sizes<<std::endl;
+			// }
 			// UE_id=UE_id+10;
 			LOG("Initial/Setting CE0 UEs done!\n");
 			UL_Sche_UE_List.sort (compareMyType);
@@ -726,8 +795,8 @@ int define_Channel_Structure(UL_Anchor_Channel_Structure &UL_Channle_Struc, DL_A
 //UL Anchor Carrier Setting
 int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_target_SNR)
 {
-	NPRACH_Struc.I_Preamble_RAR=3;//3ms,could modify
-	NPRACH_Struc.I_RAR_Msg3=8;//8ms,could modify
+	NPRACH_Struc.I_Preamble_RAR=4;//3ms,could modify
+	NPRACH_Struc.I_RAR_Msg3=13;//13ms,could modify
 	NPRACH_Struc.I_Msg3_DCIN0=8;//8ms,could modify
 	double OffsetSNR[3]={0,10,20};
 	for (int i = 0; i < number_of_target_SNR; ++i)
@@ -741,7 +810,7 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			NPRACH_Struc.rep[i]=1; //8 ms
 			NPRACH_Struc.period[i]=80;
 			NPRACH_Struc.start_time[i]=8;//offset from start of NPRACH period
-			NPRACH_Struc.num_Subcarrier[i]=24;
+			NPRACH_Struc.num_Subcarrier[i]=12;
 			NPRACH_Struc.subcarrier_Offset[i]=0;
 			NPRACH_Struc.npdcch_NumRepetitions_RA[i]=1;
 		}
@@ -750,9 +819,9 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			NPRACH_Struc.CE_Level[i]=1;
 			NPRACH_Struc.rep[i]=2; //16 ms
 			NPRACH_Struc.period[i]=80;
-			NPRACH_Struc.start_time[i]=16;
-			NPRACH_Struc.num_Subcarrier[i]=24;
-			NPRACH_Struc.subcarrier_Offset[i]=0;
+			NPRACH_Struc.start_time[i]=8;
+			NPRACH_Struc.num_Subcarrier[i]=12;
+			NPRACH_Struc.subcarrier_Offset[i]=12;
 			NPRACH_Struc.npdcch_NumRepetitions_RA[i]=2;
 		}
 		else if(NPRACH_Struc.target_SNR[i]==-5.75)//MCL:164 DB

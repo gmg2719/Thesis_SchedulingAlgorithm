@@ -1,0 +1,5 @@
+,,,,,
+CE Level,nprach-Periodicity(ms),nprach-StartTime(ms),nprach-SubcarrierOffset,nprach-NumSubcarriers,Repetition
+0,40,8,0,12,1
+1,40,8,12,12,2
+2,40,8,24,24,4

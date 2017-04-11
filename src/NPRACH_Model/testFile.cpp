@@ -19,19 +19,33 @@ double packet_delay_time[user];
 double packetArrivalTime[user];
 double temparrival;
 double packetArrivalPos=0;
-// #include <boost/random/uniform_real_distribution.hpp>
-// #include <boost/random/mersenne_twister.hpp>
-// #include <boost/random/variate_generator.hpp>
-// #include <boost/math/distributions/pareto.hpp>
+
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/poisson_distribution.hpp>
+#include <boost/math/distributions/pareto.hpp>
 
 
 int main()
 {
+	lambda=1;
+	define_system_arrival();
 
-	// boost::mt19937 randGen(15); //held constant for repeatability
-	// boost:math::pareto_distribution<> dist;
-	// boost::variate_generator<boost::mt19937&,boost::random::uniform_real_distribution<> > generator(randGen, dist);
+	system("pause");
+	return 0;
 
+	boost::mt19937 randGen(15); //held constant for repeatability
+	// boost::math::pareto_distribution<> dist(1, 1);
+	boost::poisson_distribution<> dist(1);
+	boost::variate_generator<boost::mt19937&,boost::poisson_distribution<>> generator(randGen, dist);
+
+	for(int i = 0; i < 10; i++)
+    	std::cout << generator() << '\n';
+
+    system("pause");
+	return 0;
 	// open the input file
     fstream fin;
     //fin.open("12.in", fstream::in);
@@ -88,13 +102,13 @@ void define_system_arrival(){
 			//temparrival = temparrival + exp_arrival_time(lambda);
 			packetArrivalTime[u] = exp_arrival_time(lambda) ; //rivised
 			packetArrivalPos= packetArrivalPos + packetArrivalTime[u] ;
+			// cout<< "packet_arrival_pos"<< j + 1 <<"="<<packet_arrival_pos<<endl;
+			cout <<"user " << u + 1<<" arrival time = " << packetArrivalTime[u] <<endl ;
+			system("pause");
 		}
 		else{
 			j = j - 1;
 		}
-		//cout<< "packet_arrival_pos"<< j + 1 <<"="<<packet_arrival_pos<<endl;
-		//cout <<"user " << j + 1<<" arrival time = " << packet_arrival_time[u] <<end1 ;
-		//system("pause");
 	}
 	timeslot = ceil(packetArrivalPos);
 	//cout<<"Final_Packet_pos"<<"=" << packet_arrival_pos<<endl;

@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/ModifedSystemModel/NB_Default_Channel_Config.h
+
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/ModifedSystemModel/NB_eNB_UL_Scheduler.cpp
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+errno.h
+-
+time.h
+-
+NB_Default_Channel_Config.h
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/ModifedSystemModel/NB_Default_Channel_Config.h
+
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/ModifedSystemModel/UL_Scheduler_Function_Add.cpp
+iostream
+-
+math.h
+-
+NB_Default_Channel_Config.h
+C:/Users/bmw/Desktop/Thesis_Being/Simulation/src/ModifedSystemModel/NB_Default_Channel_Config.h
+

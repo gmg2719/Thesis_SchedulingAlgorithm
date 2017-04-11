@@ -48,8 +48,8 @@ int nprachResourceMapping(int,int,int,NPRACH &,UL_Anchor_Channel_Structure &);
 
 int main()
 {
-	ofstream NPRACH_Configuration;
-	NPRACH_Configuration.open("NPRACH_Configuration_Result.csv", ios::out);
+	// ofstream NPRACH_Configuration;
+	// NPRACH_Configuration.open("NPRACH_Configuration_Result.csv", ios::out);
 
 	// Csv csv("NPRACH_ConfigV1.csv");
 
@@ -99,7 +99,7 @@ int main()
 		LOG("\n");
 	}
 
-	NPRACH_Configuration.close();
+	// NPRACH_Configuration.close();
 
 	delete [] UL_Channle_Struc.resourceStruc;
 	delete [] DL_Channle_Struc.resourceStruc;
@@ -204,10 +204,11 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 	// open the input file
     fstream fin;
     //fin.open("12.in", fstream::in);
-    fin.open("NPRACH_Configuration.in", fstream::in);
+    fin.open("NPRACH_Configuration.txt", fstream::in);
     if(!fin.is_open())
     {
         cout << "Error: the input file is not opened!!" << endl;
+        system("pause");
         exit(1);
     }
     char raConfig[1000];
@@ -259,6 +260,7 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			if(NPRACH_Struc.period[i]<=(5.6)*NPRACH_Struc.rep[i])
 			{
 				cout << "Error: the NPRACH-Config(CE0) is exceed TimeDomain resource!!" << endl;
+				system("pause");
         		exit(1);
 			}
 		}
@@ -276,6 +278,7 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			if(NPRACH_Struc.period[i]<=(5.6)*NPRACH_Struc.rep[i])
 			{
 				cout << "Error: the NPRACH-Config(CE1) is exceed TimeDomain resource limitation!!" << endl;
+				system("pause");
         		exit(1);
 			}
 		}
@@ -293,6 +296,7 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 			if(NPRACH_Struc.period[i]<=(5.6)*NPRACH_Struc.rep[i])
 			{
 				cout << "Error: the NPRACH-Config(CE2) is exceed TimeDomain resource!!" << endl;
+				system("pause");
         		exit(1);
 			}
 		}
@@ -330,6 +334,7 @@ int Set_NPRACH_Resource(NPRACH &NPRACH_Struc, int subframeTTI, int number_of_tar
 		if(errorReason!=-1)
 		{
 			cout << "Error: the NPRACH-Config(CE"<<errorReason<<") is exceed FreqDomain resource!!" << endl;
+			system("pause");
 			exit(1);
 		}
 	}

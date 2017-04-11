@@ -24,7 +24,8 @@ public:
 
 bool compareMyType (const UL_UE_list &a, const UL_UE_list &b)
 {
-	return b.DV < a.DV;
+	return a.DV > b.DV; // means The first one always larger than the later one.
+	// return a.DV < b.DV; // means The later one always larger than the first one.
 	// if(a2->round!=b2->round)	return b2->round - a2->round;
 	// else	return b2->DV - a2->DV;
 }
@@ -61,3 +62,32 @@ int main()
 
 	return 0;
 }
+
+//For Linux a kind of way to write Shell Script
+// The #define SHELLSCRIPT directive is used in C to define a named constant: SHELLSCRIPT which contains the shell script.
+
+// The back slash \ at the end of each line is used to type the code in next line for better readability.
+
+// The new line \n is used to put the code in next line.
+
+// Double quotes " within the shell script has to be escaped \" to distinguish it between the original opening and closing double quotes of constant value.
+
+// Finally the system function is called by passing the named constant: SHELLSCRIPT as argument which contains the shell script.
+// #include <stdio.h>
+// #include <stdlib.h>
+
+// #define SHELLSCRIPT "\
+// #/bin/bash \n\
+// echo \"hello\" \n\
+// echo \"how are you\" \n\
+// echo \"today\" \n\
+// "
+
+// int main()
+// {
+//     puts("Will execute sh with the following script :");
+//     puts(SHELLSCRIPT);
+//     puts("Starting now:");
+//     system(SHELLSCRIPT);
+//     return 0;
+// }

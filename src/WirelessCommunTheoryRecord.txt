@@ -1,0 +1,12 @@
+
+Shannon's theorem:
+c = b log2 (1 + s) //c:bps, b:Hz, s=SNR(dB)
+TR.45820:Table 7.3.6.2-1:
+Without IP header compression, the protocol overhead above (equivalent of) SNDCP layer is 65 bytes.
+TR.45820: 6.2.6.15.2	Traffic Models Discussion:
+For such UL traffic, the payload size follows a Pareto distribution with minimum and maximum payload sizes of 20 and 200 bytes, respectively.
+Note that, for each payload there is a 65 bytes header overhead at the SNDCP layer as well as 15 bytes SNDCP to MAC overhead,
+ i.e. each payload has an overhead of approximately 80 bytes at the MAC layer.
+ Note that for MAR periodic reporting, approximately 6.81 reports per second per sector on average correspond to 52547 UEs per sector [6.2-20]
+III_LTE NB-IoT NPDCCH v1.4_NPDCCH_Slides:
+a set of NPDCCH candidates where each candidate is repeated in a set of  R consecutive NB-IoT downlink subframes excluding subframes used for transmission of SI messages starting with subframe k

@@ -8,6 +8,8 @@
 
 #define LOG(...) printf(__VA_ARGS__)
 
+
+
 void UE_Init(UL_UE_list &UL_Sche_UE)//Call by reference is the same as Call by pointer
 {
 	//UL
@@ -46,7 +48,8 @@ int fifteenkHz_RU_Format[4][2]={{1,16},{3,8},{6,4},{12,2}};//[i][j]: i: number o
 // }
 int get_remaining_UL_resource(int startScheTTICE0,int &scheTTIOffset,UL_Anchor_Channel_Structure &UL_Channle_Struc)
 {
-	int remaining_UL_resource=-1,resource_allocation=0;
+	int remaining_UL_resource=-1;
+	//,resource_allocation=0;
 	// int scheTTIOffset=0;
 	for (int i = startScheTTICE0; i < (startScheTTICE0+48); ++i)
 	{
@@ -68,8 +71,9 @@ int get_remaining_UL_resource(int startScheTTICE0,int &scheTTIOffset,UL_Anchor_C
 	}
 	return	remaining_UL_resource;
 }
-int resourceAllocPattern0[5]={0,24,36,40,44};//freqOffset for resource mapping
-int resourceAllocPattern1[8]={0,24,36,40,44,45,46,47};//freqOffset for resource mapping
+int resourceAllocPattern0[5]={0,24,36,40,44};//freqOffset for resource mapping, 6 tone/3 tone/1*3 tone
+int resourceAllocPattern1[5]={0,4,8,12,24};//freqOffset for resource mapping, 1*3 tone/3 tone/6 tone
+int resourceAllocPattern2[8]={0,24,36,40,44,45,46,47};//freqOffset for resource mapping
 // int resourceAllocPattern2[5]={0,24,36,40,44};//freqOffset for resource mapping
 bool check_ULChannel(UL_Anchor_Channel_Structure &UL_Channle_Struc,int Subframe,int startFreqPos,int occupy_Freq)
 {
@@ -79,9 +83,9 @@ bool check_ULChannel(UL_Anchor_Channel_Structure &UL_Channle_Struc,int Subframe,
 }
 int get_num_subcarrier_perRU(int get_startFreqPos)
 {
-	if(get_startFreqPos==resourceAllocPattern0[0])	return 6;
-	else if(get_startFreqPos==resourceAllocPattern0[1])	return 3;
-	else if(get_startFreqPos==resourceAllocPattern0[2]||get_startFreqPos==resourceAllocPattern0[3]||get_startFreqPos==resourceAllocPattern0[4])	return 1;
+	if(get_startFreqPos==resourceAllocPattern1[4])	return 6;
+	else if(get_startFreqPos==resourceAllocPattern1[3])	return 3;
+	else if(get_startFreqPos==resourceAllocPattern1[0]||get_startFreqPos==resourceAllocPattern1[1]||get_startFreqPos==resourceAllocPattern1[2])	return 1;
 }
 int get_num_Slot(int x)
 {
@@ -99,7 +103,7 @@ int get_startFreqPos(UL_Anchor_Channel_Structure &UL_Channle_Struc,int &startTim
 	{
 		for (int i = startTime; i < subframeTTI; ++i)
 		{
-			for (int j = 0; j < resourceAllocPattern0[2]; ++j)//j<36, don't use singleTone resource
+			for (int j = 12; j < resourceAllocPattern1[4]+24; ++j)//12<=j<48, don't use singleTone resource
 			{
 				if(UL_Channle_Struc.resourceStruc[j][i]==0)
 				{
@@ -120,7 +124,7 @@ int get_startFreqPos(UL_Anchor_Channel_Structure &UL_Channle_Struc,int &startTim
 	{
 		for (int i = startTime; i < subframeTTI; ++i)
 		{
-			for (int j = resourceAllocPattern0[2]; j < 48; ++j)//j>=36, don't use MultiTone resource
+			for (int j = resourceAllocPattern1[0]; j < resourceAllocPattern1[3]; ++j)//0<=j<12, don't use MultiTone resource
 				if(UL_Channle_Struc.resourceStruc[j][i]==0)
 				{
 					FreqPos=j;
@@ -264,17 +268,17 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 			int num_subcarrier_perRU=1;
 			int occupy_Freq=num_subcarrier_perRU * 4;//(3.75 * 4) ->15 kHz
 
-			if(startFreqPos==resourceAllocPattern0[2])//resourceAllocPattern0[2]:36
+			if(startFreqPos==resourceAllocPattern1[0])//resourceAllocPattern1[0]:0
 			{
 				// startTimeSingleTone[0]=startScheTTICE0;//record SingleTone used time
 				startTime=startTimeSingleTone[0];
 			}
-			else if(startFreqPos==resourceAllocPattern0[3])//resourceAllocPattern0[3]:40
+			else if(startFreqPos==resourceAllocPattern1[1])//resourceAllocPattern1[1]:4
 			{
 				// startTimeSingleTone[1]=startScheTTICE0;//record SingleTone used time
 				startTime=startTimeSingleTone[1];
 			}
-			else if(startFreqPos==resourceAllocPattern0[4])//resourceAllocPattern0[4]:44
+			else if(startFreqPos==resourceAllocPattern1[2])//resourceAllocPattern1[2]:8
 			{
 				// startTimeSingleTone[2]=startScheTTICE0;//record SingleTone used time
 				startTime=startTimeSingleTone[2];
@@ -321,11 +325,11 @@ int do_NPUSCH_Resource_Allocation(UL_UE_list &UL_Sche_UE,UL_Anchor_Channel_Struc
 	}
 	else if(UL_Sche_UE.CE_Level==1)
 	{
-		int numRepetiiton=2;
+		// int numRepetiiton=2;
 	}
 	else if(UL_Sche_UE.CE_Level==2)
 	{
-		int numRepetiiton=4;
+		// int numRepetiiton=4;
 	}
 	return 0;
 }
@@ -382,6 +386,8 @@ int get_UL_Data_Bytes(int DV)
 		case 15:
 			UL_Data_Bytes=1501;//DV > 1500
 			break;
+		default:
+			break;
 	}
 	return UL_Data_Bytes;
 }
@@ -401,7 +407,7 @@ int UL_TBS_Table[13][8]={{16,2,56,88,120,152,208,256},
 
 bool compareMyType (const UL_UE_list &a, const UL_UE_list &b)
 {
-	return b.UL_Buffer_Sizes < a.UL_Buffer_Sizes;
+	return a.UL_Buffer_Sizes > b.UL_Buffer_Sizes ;
 	// if(a2->round!=b2->round)	return b2->round - a2->round;
 	// else	return b2->DV - a2->DV;
 }
@@ -526,10 +532,10 @@ int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,
 				int occupy_Freq=NPRACH_Struc.num_Subcarrier[i];
 				if(i==0)
 				{
-					int successPreambleCE0=3;//rand()? Preamble success
-					for (int i = 0; i < successPreambleCE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
-					int Pos=UL_Sche_UE_List.size()-1;
-					for (it1=UL_Sche_UE_List.begin()+Pos-successPreambleCE0; it1!=UL_Sche_UE_List.end(); ++it1)
+					// int successPreambleCE0=3;//rand()? Preamble success
+					// for (int i = 0; i < successPreambleCE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
+					// int Pos=UL_Sche_UE_List.size()-1;
+					for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
 					{
 						UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
 						UE_Init(*i);
@@ -545,109 +551,109 @@ int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,
 						//http://www.sharetechnote.com/html/Handbook_LTE_CodeRate.html#CodeRate_vs_MCS
 						//MCS:2-10 <->Channnel quality/Coding rate
 						i->mcs=2+rand()%9;//Qm=2,MCS:2-10 36213 Table 16.5.1.2-1
-						int repDCIRAR=NPRACH_Struc.rep[i]* (rand()%successPreambleCE0);
-						int I_RAR=NPRACH_Struc.rep[i]=* (rand()%successPreambleCE0);
-						i->startScheMsg3=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+repDCIRAR+I_RAR;
+						// int repDCIRAR=NPRACH_Struc.rep[i]* (rand()%successPreambleCE0);
+						// int I_RAR=NPRACH_Struc.rep[i]=* (rand()%successPreambleCE0);
+						// i->startScheMsg3=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+repDCIRAR+I_RAR;
 						// i->startScheULdata=-1;
 						// i->resourceAlloc=false;
 						// std::cout << ' ' << i->UE_id<<','<<i->UL_Buffer_Sizes<<std::endl;
 					}
 
-					startScheTTICE0=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+repDCIRAR+I_RAR+NPRACH_Struc.I_RAR_Msg3+12+rand()%21+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
+					startScheTTICE0=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+NPRACH_Struc.I_RAR_Msg3+12+rand()%21+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
 					LOG("startScheTTI CE0: %d\n",startScheTTICE0);
-					Msg3deltaMappingTime=time_SuccessPreamble+4ms+DCI_Rep(RAR)+5ms+ ko_RAR+RAR_Rep+ko_Msg3
+					// Msg3deltaMappingTime=time_SuccessPreamble+4ms+DCI_Rep(RAR)+5ms+ ko_RAR+RAR_Rep+ko_Msg3
 
 				}
 				else if(i==1)
 				{
-					int successPreambleCE1=3;//rnad()? Preamble success
-					num_UEs_CE1=10;//rnad()?
+					int successPreambleCE1=3;//rand()? Preamble success
+					num_UEs_CE1=10;//rand()?
 					startScheTTICE1=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+NPRACH_Struc.rep[i]+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_RAR_Msg3+24+rand()%41+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
 					LOG("startScheTTI CE1: %d\n",startScheTTICE1);
 				}
 				else if(i==2)
 				{
-					int successPreambleCE3=3;//rnad()? Preamble success
-					num_UEs_CE2=10;//rnad()?
+					int successPreambleCE3=3;//rand()? Preamble success
+					num_UEs_CE2=10;//rand()?
 					startScheTTICE2=startTime+occupy_Subframe+NPRACH_Struc.I_Preamble_RAR+NPRACH_Struc.rep[i]+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_RAR_Msg3+36+rand()%61+3+2 * NPRACH_Struc.rep[i]+NPRACH_Struc.I_Msg3_DCIN0;
 					LOG("startScheTTI CE2: %d\n",startScheTTICE2);
 				}
 			}
 		}//end... number_of_target_SNR
-		for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
-		{
-			UL_UE_list *i = &*it1;
-			if(subframe==i->startScheMsg3)
-			{
-				int Msg3bits=91;
-				int RU_unit=1;
-				i->DV=1+rand()%8;	//decided by UE's UL buffer
-				i->UL_Buffer_Sizes=get_UL_Data_Bytes(Msg3bits);
-				i->multi_tone=rand() % 3; //decided by Msg3's content
-				int num_RU_Msg3=RU_unit;
-				int TBS=get_TBS_UL(i->mcs,i->multi_tone,num_RU);
-				// LOG("InitialTBS:%d\n",TBS);
-				if(TBS==-1) continue;
-				while(TBS<i->UL_Buffer_Sizes)
-				{
-					num_RU=num_RU+RU_unit;
-					if(num_RU>10)
-					{
-						TBS=get_TBS_UL(i->mcs,i->multi_tone,10);
-						num_RU=10;
-						i->remaining_Buffer_Sizes=i->UL_Buffer_Sizes-TBS;
-						i->round++;
-						break;
-					}
-					TBS=get_TBS_UL(i->mcs,i->multi_tone,num_RU);
-					// LOG("TBS:%d\n",TBS);
-					// system("pause");
-				}
-				i->UE_num_RU=num_RU;
-				while (!i->empty())
-				{
+		// for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
+		// {
+		// 	UL_UE_list *i = &*it1;
+		// 	if(subframe==i->startScheMsg3)
+		// 	{
+		// 		int Msg3bits=91;
+		// 		int RU_unit=1;
+		// 		i->DV=1+rand()%8;	//decided by UE's UL buffer
+		// 		i->UL_Buffer_Sizes=get_UL_Data_Bytes(Msg3bits);
+		// 		i->multi_tone=rand() % 3; //decided by Msg3's content
+		// 		int num_RU=RU_unit;
+		// 		int TBS=get_TBS_UL(i->mcs,i->multi_tone,num_RU);
+		// 		// LOG("InitialTBS:%d\n",TBS);
+		// 		if(TBS==-1) continue;
+		// 		while(TBS<i->UL_Buffer_Sizes)
+		// 		{
+		// 			num_RU=num_RU+RU_unit;
+		// 			if(num_RU>10)
+		// 			{
+		// 				TBS=get_TBS_UL(i->mcs,i->multi_tone,10);
+		// 				num_RU=10;
+		// 				i->remaining_Buffer_Sizes=i->UL_Buffer_Sizes-TBS;
+		// 				i->round++;
+		// 				break;
+		// 			}
+		// 			TBS=get_TBS_UL(i->mcs,i->multi_tone,num_RU);
+		// 			// LOG("TBS:%d\n",TBS);
+		// 			// system("pause");
+		// 		}
+		// 		i->UE_num_RU=num_RU;
+		// 		// while (!i->empty())
+		// 		// {
 
-				}
-			}
-		}
+		// 		// }
+		// 	}
+		// }
 		if(subframe==startScheTTICE0)//sche for CE0 UEs
 		{
-			// num_UEs_CE0=10;
+			num_UEs_CE0=10;
 			static int cntRnd=0;
 			++cntRnd;
 			LOG("%d round startScheTTICE0:%d\n",cntRnd,startScheTTICE0);
 			// static int UE_id=10;//10~
 			// int successProb=0.36;
-			// int UE_id=10;
-			// for (int i = 0; i < num_UEs_CE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
-			// for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
-			// {
-			// 	UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
-			// 	UE_Init(*i);
-			// 	i->UE_id=UE_id;
-			// 	i->UE_num_RU=0;
-			// 	i->remainging_subframe=0;
-			// 	++UE_id;
-			// 	// i->freq_Space=15;//15 kHz
-			// 	i->CE_Level=0; //decided by UE's RSRP in RA procedure
-			// 	i->DV=1+rand()%8;	//decided by UE's UL buffer
-			// 	i->multi_tone=rand() % 3; //decided by Msg3's content
-			// 	i->UL_Buffer_Sizes=get_UL_Data_Bytes(i->DV);
-			// 	//http://www.sharetechnote.com/html/Handbook_LTE_CodeRate.html#CodeRate_vs_MCS
-			// 	//MCS:2-10 <->Channnel quality/Coding rate
-			// 	i->mcs=2+rand()%9;//Qm=2,MCS:2-10 36213 Table 16.5.1.2-1
-			// 	i->resourceAlloc=false;
-			// 	// std::cout << ' ' << i->UE_id<<','<<i->UL_Buffer_Sizes<<std::endl;
-			// }
+			int UE_id=10;
+			for (int i = 0; i < num_UEs_CE0; ++i)	UL_Sche_UE_List.push_back (UL_Sche_UE);
+			for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
+			{
+				UL_UE_list *i = &*it1;//need to convert from iterator to (UL_UE_list *)
+				UE_Init(*i);
+				i->UE_id=UE_id;
+				i->UE_num_RU=0;
+				i->remainging_subframe=0;
+				++UE_id;
+				// i->freq_Space=15;//15 kHz
+				i->CE_Level=0; //decided by UE's RSRP in RA procedure
+				i->DV=1+rand()%8;	//decided by UE's UL buffer
+				i->multi_tone=rand() % 3; //decided by Msg3's content
+				i->UL_Buffer_Sizes=get_UL_Data_Bytes(i->DV);
+				//http://www.sharetechnote.com/html/Handbook_LTE_CodeRate.html#CodeRate_vs_MCS
+				//MCS:2-10 <->Channnel quality/Coding rate
+				i->mcs=2+rand()%9;//Qm=2,MCS:2-10 36213 Table 16.5.1.2-1
+				i->resourceAlloc=false;
+				// std::cout << ' ' << i->UE_id<<','<<i->UL_Buffer_Sizes<<std::endl;
+			}
 			// UE_id=UE_id+10;
 			LOG("Initial/Setting CE0 UEs done!\n");
 			UL_Sche_UE_List.sort (compareMyType);
 			LOG("Sorting CE0 UEs done!\n");
-			for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
-			{
-				UL_UE_list *i = &*it1;
-				// LOG("UE_id:%d,CE_Level:%d,msc:%d,DV:%d,UL_Buffer_Sizes(Bytes):%d,multi_tone:%d\n",i->UE_id,i->CE_Level,i->mcs,i->DV,i->UL_Buffer_Sizes,i->multi_tone);
-			}
+			// for (it1=UL_Sche_UE_List.begin(); it1!=UL_Sche_UE_List.end(); ++it1)
+			// {
+			// 	UL_UE_list *i = &*it1;
+			// 	LOG("UE_id:%d,CE_Level:%d,msc:%d,DV:%d,UL_Buffer_Sizes(Bytes):%d,multi_tone:%d\n",i->UE_id,i->CE_Level,i->mcs,i->DV,i->UL_Buffer_Sizes,i->multi_tone);
+			// }
 			// system("pause");
 			// return 0;
 			// for (int i = 0; i < 13; ++i)
@@ -663,7 +669,7 @@ int do_NPUSCH_Scheduler(int offsetPos,int &subframeTTI,int number_of_target_SNR,
 			//To transmit N consecutive UL slot, N=num_Repetition * num_RU * num_UL_Slot
 			//Assume num_subcarrier_one_RU transmit the same data size, only affect resource utilization
 			//int num_Repetition[num_UEs_CE0];
-			int I_TBS[num_UEs_CE0];
+			// int I_TBS[num_UEs_CE0];
 			int RU_unit=1;
 			int Qm = 2;//modulation order fixed to 2
 			//First Round to calculate RU required by each UEs

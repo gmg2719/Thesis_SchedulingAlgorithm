@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <time.h>
 
+
 #include "NB_Default_Channel_Config.h"
 
 
@@ -30,7 +31,7 @@ int main(int argc, char const *argv[])
 	}
 	// UE_Init(&UL_Sche_UE_List,&DL_Sche_UE_List);
 	// LOG("Initial UEs done!\n");
-	int subframeTTI = atoi(argv[1]);
+	int subframeTTI = atoi(argv[1]);//Convert string to integer,int atoi (const char * str);
 	if(define_Channel_Structure(UL_Channle_Struc, DL_Channle_Struc, subframeTTI)==0)
 	{
 		LOG("Set DL/UL Channel Structure Done\n");
@@ -66,7 +67,7 @@ int main(int argc, char const *argv[])
 	}
 	else
 	{
-		LOG("return 1 for Testing!\n");
+		LOG("do_NPUSCH_Scheduler() return 1 for Testing!\n");
 		for (int i = 0; i < subframeTTI*2; ++i)
 		{
 			for (int j = 0; j < num_UL_Subcarrier; ++j)
